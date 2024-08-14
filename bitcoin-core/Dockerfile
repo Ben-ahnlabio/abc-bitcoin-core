@@ -19,14 +19,13 @@ RUN wget https://bitcoincore.org/bin/bitcoin-core-27.1/bitcoin-27.1-x86_64-linux
     tar -xzf bitcoin-27.1-x86_64-linux-gnu.tar.gz && \
     ln -s bitcoin-27.1 bitcoin && \
     rm bitcoin-27.1-x86_64-linux-gnu.tar.gz
+
 COPY bitcoin.conf /root/
 RUN mkdir /root/.bitcoin && cp /root/bitcoin.conf /root/.bitcoin/bitcoin.conf
 
-RUN echo "copy start.sh"
-
 COPY start.sh /root/
 RUN chmod +x /root/start.sh
- 
+
 EXPOSE 8332
 EXPOSE 28332
 
