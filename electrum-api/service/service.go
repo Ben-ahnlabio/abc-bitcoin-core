@@ -65,6 +65,28 @@ func GetUTXO(address string) (*GetUTXOResult, error) {
 
 }
 
+func GetHistory(address string) (*GetHistoryResult, error) {
+	appConfig := config.GetConfig()
+	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
+	result, err := electrum.GetHistory(address)
+	if err != nil {
+		return nil, ElectrumError(err)
+	}
+
+	histories := make([]*History, 0)
+	for _, history := range result {
+		histories = append(histories, &History{
+			Height: history.Height,
+			TxHash: history.Hash,
+		})
+	}
+
+	return &GetHistoryResult{
+		Address:   address,
+		Histories: histories,
+	}, nil
+}
+
 type GetUTXOResult struct {
 	Address string  `json:"address"`
 	UTXOs   []*UTXO `json:"utxos"`
@@ -87,4 +109,15 @@ type GetBalanceResult struct {
 	Address     string `json:"address"`
 	Confirmed   int    `json:"confirmd"`
 	Unconfirmed int    `json:"unconfirmd"`
+}
+
+type GetHistoryResult struct {
+	Address   string     `json:"address"`
+	Histories []*History `json:"histories"`
+}
+
+type History struct {
+	Height int32  `json:"height"`
+	TxHash string `json:"tx_hash"`
+	Fee    uint32 `json:"fee,omitempty"`
 }

@@ -41,14 +41,6 @@ func GetBalanceHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func GetHistoryHandler(c *gin.Context) {
-	address := c.Query("address")
-	if address == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
-		return
-	}
-}
-
 func GetTransactionHandler(c *gin.Context) {
 	txId := c.Query("txid")
 	if txId == "" {
@@ -79,6 +71,22 @@ func GetUTXOHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+func GetHistoryHandler(c *gin.Context) {
+	address := c.Query("address")
+	if address == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
+		return
+	}
+
+	result, err := service.GetHistory(address)
+	if err != nil {
+		errResp(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 type GetUTXOResponse struct {
 	Address string  `json:"address"`
 	UTXOs   []*UTXO `json:"utxos"`
@@ -101,6 +109,17 @@ type GetTransactionResponse struct {
 	BlockHash     string `json:"block_hash"`
 	TxHash        string `json:"tx_hash"`
 	Confirmations int    `json:"confirmations"`
+}
+
+type GetHistoryResponse struct {
+	Address   string     `json:"address"`
+	Histories []*History `json:"histories"`
+}
+
+type History struct {
+	Height int32  `json:"height"`
+	TxHash string `json:"tx_hash"`
+	Fee    uint32 `json:"fee,omitempty"`
 }
 
 func errResp(c *gin.Context, err error) {

@@ -30,6 +30,7 @@ func getRouter() *gin.Engine {
 	r.GET("/v1/balance", handlers.GetBalanceHandler)
 	r.GET("/v1/transaction", handlers.GetTransactionHandler)
 	r.GET("/v1/utxo", handlers.GetUTXOHandler)
+	r.GET("/v1/history", handlers.GetHistoryHandler)
 
 	return r
 }
