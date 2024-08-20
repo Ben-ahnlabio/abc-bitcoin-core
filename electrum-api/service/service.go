@@ -1,19 +1,24 @@
 package service
 
-import (
-	"github.com/ahnlabio/bitcoin-core/electrum-api/config"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/electrum"
-)
+import interfaces "github.com/ahnlabio/bitcoin-core/electrum-api/interfaces"
 
-func GetBalance(address string) (*GetBalanceResult, error) {
+type BitcoinApiService struct {
+	Elemctrum interfaces.Electrum
+}
+
+func NewBitcoinApiService(electrum interfaces.Electrum) *BitcoinApiService {
+	return &BitcoinApiService{
+		Elemctrum: electrum,
+	}
+}
+
+func (s BitcoinApiService) GetBalance(address string) (*GetBalanceResult, error) {
 	_, err := validateAddress(address)
 	if err != nil {
 		return nil, InvalidAddressError(err)
 	}
 
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetBalance(address)
+	result, err := s.Elemctrum.GetBalance(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
@@ -25,10 +30,8 @@ func GetBalance(address string) (*GetBalanceResult, error) {
 	}, nil
 }
 
-func GetTransaction(txId string) (*GetTransactionResult, error) {
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetTransaction(txId)
+func (s BitcoinApiService) GetTransaction(txId string) (*GetTransactionResult, error) {
+	result, err := s.Elemctrum.GetTransaction(txId)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
@@ -40,10 +43,8 @@ func GetTransaction(txId string) (*GetTransactionResult, error) {
 	}, nil
 }
 
-func GetUTXO(address string) (*GetUTXOResult, error) {
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetListUnspent(address)
+func (s BitcoinApiService) GetUTXO(address string) (*GetUTXOResult, error) {
+	result, err := s.Elemctrum.GetListUnspent(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
@@ -65,10 +66,8 @@ func GetUTXO(address string) (*GetUTXOResult, error) {
 
 }
 
-func GetHistory(address string) (*GetHistoryResult, error) {
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetHistory(address)
+func (s BitcoinApiService) GetHistory(address string) (*GetHistoryResult, error) {
+	result, err := s.Elemctrum.GetHistory(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}

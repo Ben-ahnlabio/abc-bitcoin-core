@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ahnlabio/bitcoin-core/electrum-api/container"
 	"github.com/ahnlabio/bitcoin-core/electrum-api/service"
 	"github.com/gin-gonic/gin"
 )
@@ -33,6 +34,8 @@ func GetBalanceHandler(c *gin.Context) {
 		return
 	}
 
+	conatiner := container.GetInstnace()
+	service := conatiner.GetBitcoinApiService()
 	result, err := service.GetBalance(address)
 	if err != nil {
 		errResp(c, err)
@@ -48,6 +51,8 @@ func GetTransactionHandler(c *gin.Context) {
 		return
 	}
 
+	conatiner := container.GetInstnace()
+	service := conatiner.GetBitcoinApiService()
 	result, err := service.GetTransaction(txId)
 	if err != nil {
 		errResp(c, err)
@@ -63,6 +68,8 @@ func GetUTXOHandler(c *gin.Context) {
 		return
 	}
 
+	conatiner := container.GetInstnace()
+	service := conatiner.GetBitcoinApiService()
 	result, err := service.GetUTXO(address)
 	if err != nil {
 		errResp(c, err)
@@ -78,6 +85,8 @@ func GetHistoryHandler(c *gin.Context) {
 		return
 	}
 
+	conatiner := container.GetInstnace()
+	service := conatiner.GetBitcoinApiService()
 	result, err := service.GetHistory(address)
 	if err != nil {
 		errResp(c, err)
