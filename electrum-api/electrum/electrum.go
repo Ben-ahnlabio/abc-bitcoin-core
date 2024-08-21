@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ahnlabio/bitcoin-core/electrum-api/interfaces"
+	"github.com/ahnlabio/bitcoin-core/electrum-api/types"
 	"github.com/checksum0/go-electrum/electrum"
 )
 
@@ -22,7 +22,7 @@ func NewElectrum(host, port string) Electrum {
 	}
 }
 
-func (e Electrum) GetBalance(address string) (*interfaces.ElectrumBalance, error) {
+func (e Electrum) GetBalance(address string) (*types.ElectrumBalance, error) {
 
 	scriptHash, err := electrum.AddressToElectrumScriptHash(address)
 	if err != nil {
@@ -35,6 +35,8 @@ func (e Electrum) GetBalance(address string) (*interfaces.ElectrumBalance, error
 	if err != nil {
 		return nil, err
 	}
+	defer client.Shutdown()
+
 	ctx := context.TODO()
 	getBalanceResult, err := client.GetBalance(ctx, scriptHash)
 	if err != nil {
@@ -43,13 +45,13 @@ func (e Electrum) GetBalance(address string) (*interfaces.ElectrumBalance, error
 	}
 
 	log.Printf("getBalanceResult: %v scriptHash: %s", getBalanceResult, scriptHash)
-	return &interfaces.ElectrumBalance{
+	return &types.ElectrumBalance{
 		Confirmed:   getBalanceResult.Confirmed,
 		Unconfirmed: getBalanceResult.Unconfirmed,
 	}, nil
 }
 
-func (e Electrum) GetHistory(address string) ([]*interfaces.ElectrumHistory, error) {
+func (e Electrum) GetHistory(address string) ([]*types.ElectrumHistory, error) {
 	scriptHash, err := electrum.AddressToElectrumScriptHash(address)
 	if err != nil {
 		log.Printf("electrum.AddressToElectrumScriptHash error: %s", err)
@@ -60,6 +62,8 @@ func (e Electrum) GetHistory(address string) ([]*interfaces.ElectrumHistory, err
 	if err != nil {
 		return nil, err
 	}
+	defer client.Shutdown()
+
 	ctx := context.TODO()
 	history, err := client.GetHistory(ctx, scriptHash)
 	if err != nil {
@@ -69,9 +73,9 @@ func (e Electrum) GetHistory(address string) ([]*interfaces.ElectrumHistory, err
 
 	log.Printf("history: %v scriptHash: %s", history, scriptHash)
 
-	var histories []*interfaces.ElectrumHistory
+	var histories []*types.ElectrumHistory
 	for _, h := range history {
-		histories = append(histories, &interfaces.ElectrumHistory{
+		histories = append(histories, &types.ElectrumHistory{
 			Hash:   h.Hash,
 			Height: h.Height,
 			Fee:    h.Fee,
@@ -80,7 +84,7 @@ func (e Electrum) GetHistory(address string) ([]*interfaces.ElectrumHistory, err
 	return histories, nil
 }
 
-func (e Electrum) GetListUnspent(address string) ([]*interfaces.ElectrumUtxo, error) {
+func (e Electrum) GetListUnspent(address string) ([]*types.ElectrumUtxo, error) {
 	scriptHash, err := electrum.AddressToElectrumScriptHash(address)
 	if err != nil {
 		log.Printf("electrum.AddressToElectrumScriptHash error: %s", err)
@@ -91,6 +95,8 @@ func (e Electrum) GetListUnspent(address string) ([]*interfaces.ElectrumUtxo, er
 	if err != nil {
 		return nil, err
 	}
+	defer client.Shutdown()
+
 	ctx := context.TODO()
 	listUnspent, err := client.ListUnspent(ctx, scriptHash)
 	if err != nil {
@@ -100,9 +106,9 @@ func (e Electrum) GetListUnspent(address string) ([]*interfaces.ElectrumUtxo, er
 
 	log.Printf("[Electrum] listUnspent: %v scriptHash: %s", listUnspent, scriptHash)
 
-	var utxos []*interfaces.ElectrumUtxo
+	var utxos []*types.ElectrumUtxo
 	for _, u := range listUnspent {
-		utxos = append(utxos, &interfaces.ElectrumUtxo{
+		utxos = append(utxos, &types.ElectrumUtxo{
 			Height:   u.Height,
 			Position: u.Position,
 			Hash:     u.Hash,
@@ -113,11 +119,13 @@ func (e Electrum) GetListUnspent(address string) ([]*interfaces.ElectrumUtxo, er
 	return utxos, nil
 }
 
-func (e Electrum) GetTransaction(txHash string) (*interfaces.ElectrumTransaction, error) {
+func (e Electrum) GetTransaction(txHash string) (*types.ElectrumTransaction, error) {
 	client, err := e.sslClient()
 	if err != nil {
 		return nil, err
 	}
+	defer client.Shutdown()
+
 	ctx := context.TODO()
 
 	getTransactionResult, err := client.GetTransaction(ctx, txHash)
@@ -127,7 +135,7 @@ func (e Electrum) GetTransaction(txHash string) (*interfaces.ElectrumTransaction
 	}
 
 	log.Printf("getTransactionResult: %v txHash: %s", getTransactionResult, txHash)
-	return &interfaces.ElectrumTransaction{
+	return &types.ElectrumTransaction{
 		Blockhash:     getTransactionResult.Blockhash,
 		Hash:          getTransactionResult.Hash,
 		Confirmations: getTransactionResult.Confirmations,

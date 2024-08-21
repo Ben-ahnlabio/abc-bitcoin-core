@@ -4,10 +4,20 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ahnlabio/bitcoin-core/electrum-api/container"
 	"github.com/ahnlabio/bitcoin-core/electrum-api/service"
+	"github.com/ahnlabio/bitcoin-core/electrum-api/types"
 	"github.com/gin-gonic/gin"
 )
+
+type Handler struct {
+	btcSvc types.IBtcService
+}
+
+func NewHandler(apiService types.IBtcService) *Handler {
+	return &Handler{
+		btcSvc: apiService,
+	}
+}
 
 // GetBalanceHandler godoc
 // @Summary Show the balance of the address
@@ -18,7 +28,7 @@ import (
 // @Param address query string true "address"
 // @Success 200 {object} RootResponse
 // @Router /v1/getBalance [get]
-func GetBalanceHandler(c *gin.Context) {
+func (c Handler) GetBalanceHandler(ctx *gin.Context) {
 	/*
 		query parameter 로 입력받은 주소의 잔고를 조회한다.
 		결과는 아래와 같은 json 형태로 반환한다.
@@ -28,118 +38,84 @@ func GetBalanceHandler(c *gin.Context) {
 		}
 
 	*/
-	address := c.Query("address")
+	address := ctx.Query("address")
 	if address == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
 		return
 	}
 
-	conatiner := container.GetInstnace()
-	service := conatiner.GetBitcoinApiService()
-	result, err := service.GetBalance(address)
+	result, err := c.btcSvc.GetBalance(address)
 	if err != nil {
-		errResp(c, err)
+		errResp(ctx, err)
 		return
 	}
-	c.JSON(http.StatusOK, result)
+	ctx.JSON(http.StatusOK, result)
 }
 
-func GetTransactionHandler(c *gin.Context) {
-	txId := c.Query("txid")
+func (c Handler) GetTransactionHandler(ctx *gin.Context) {
+	txId := ctx.Query("txid")
 	if txId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("txid is required")})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("txid is required")})
 		return
 	}
 
-	conatiner := container.GetInstnace()
-	service := conatiner.GetBitcoinApiService()
-	result, err := service.GetTransaction(txId)
-	if err != nil {
-		errResp(c, err)
+	if len(txId) != 64 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("txid must be of length 64")})
 		return
 	}
-	c.JSON(http.StatusOK, result)
+
+	result, err := c.btcSvc.GetTransaction(txId)
+	if err != nil {
+		errResp(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, result)
 }
 
-func GetUTXOHandler(c *gin.Context) {
-	address := c.Query("address")
+func (c Handler) GetUTXOHandler(ctx *gin.Context) {
+	address := ctx.Query("address")
 	if address == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
 		return
 	}
 
-	conatiner := container.GetInstnace()
-	service := conatiner.GetBitcoinApiService()
-	result, err := service.GetUTXO(address)
+	result, err := c.btcSvc.GetUTXO(address)
 	if err != nil {
-		errResp(c, err)
+		errResp(ctx, err)
 		return
 	}
-	c.JSON(http.StatusOK, result)
+	ctx.JSON(http.StatusOK, result)
 }
 
-func GetHistoryHandler(c *gin.Context) {
-	address := c.Query("address")
+func (c Handler) GetHistoryHandler(ctx *gin.Context) {
+	address := ctx.Query("address")
 	if address == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": BadRequestErrorResp("address is required")})
 		return
 	}
 
-	conatiner := container.GetInstnace()
-	service := conatiner.GetBitcoinApiService()
-	result, err := service.GetHistory(address)
+	result, err := c.btcSvc.GetHistory(address)
 	if err != nil {
-		errResp(c, err)
+		errResp(ctx, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, result)
-}
-
-type GetUTXOResponse struct {
-	Address string  `json:"address"`
-	UTXOs   []*UTXO `json:"utxos"`
-}
-
-type UTXO struct {
-	Height   uint32 `json:"height"`
-	Position uint32 `json:"tx_pos"`
-	Hash     string `json:"tx_hash"`
-	Value    uint64 `json:"value"`
-}
-
-type GetBalanceResponse struct {
-	Address    string `json:"address"`
-	Confirmd   int    `json:"confirmd"`
-	Unconfirmd int    `json:"unconfirmd"`
-}
-
-type GetTransactionResponse struct {
-	BlockHash     string `json:"block_hash"`
-	TxHash        string `json:"tx_hash"`
-	Confirmations int    `json:"confirmations"`
-}
-
-type GetHistoryResponse struct {
-	Address   string     `json:"address"`
-	Histories []*History `json:"histories"`
-}
-
-type History struct {
-	Height int32  `json:"height"`
-	TxHash string `json:"tx_hash"`
-	Fee    uint32 `json:"fee,omitempty"`
+	ctx.JSON(http.StatusOK, result)
 }
 
 func errResp(c *gin.Context, err error) {
-	log.Printf("[ERROR] err: %s, url: %s\n", err.Error(), c.Request.URL)
 	if errorInfo, ok := err.(*service.ServiceErr); ok {
-		log.Printf("errorInfo: %v\n", errorInfo)
 		res := CommonErrorObject{
 			Message: errorInfo.Msg,
 			Text:    errorInfo.Text,
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": &res})
+
+		status := http.StatusInternalServerError
+		if errorInfo.Text == service.ERR_INVALID_ADDRESS {
+			status = http.StatusBadRequest
+		}
+
+		log.Printf("[ERROR] err: %s, url: %s, status: %d\n", err.Error(), c.Request.URL, status)
+		c.JSON(status, gin.H{"error": &res})
 		return
 	}
 	res := CommonErrorObject{

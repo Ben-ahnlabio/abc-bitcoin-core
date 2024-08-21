@@ -1,18 +1,18 @@
 package service
 
-import interfaces "github.com/ahnlabio/bitcoin-core/electrum-api/interfaces"
+import types "github.com/ahnlabio/bitcoin-core/electrum-api/types"
 
-type BitcoinApiService struct {
-	Elemctrum interfaces.Electrum
+type BtcService struct {
+	Elemctrum types.IElectrum
 }
 
-func NewBitcoinApiService(electrum interfaces.Electrum) *BitcoinApiService {
-	return &BitcoinApiService{
+func NewBitcoinApiService(electrum types.IElectrum) *BtcService {
+	return &BtcService{
 		Elemctrum: electrum,
 	}
 }
 
-func (s BitcoinApiService) GetBalance(address string) (*GetBalanceResult, error) {
+func (s BtcService) GetBalance(address string) (*types.GetBalanceResult, error) {
 	_, err := validateAddress(address)
 	if err != nil {
 		return nil, InvalidAddressError(err)
@@ -23,35 +23,35 @@ func (s BitcoinApiService) GetBalance(address string) (*GetBalanceResult, error)
 		return nil, ElectrumError(err)
 	}
 
-	return &GetBalanceResult{
+	return &types.GetBalanceResult{
 		Address:     address,
 		Confirmed:   int(result.Confirmed),
 		Unconfirmed: int(result.Unconfirmed),
 	}, nil
 }
 
-func (s BitcoinApiService) GetTransaction(txId string) (*GetTransactionResult, error) {
+func (s BtcService) GetTransaction(txId string) (*types.GetTransactionResult, error) {
 	result, err := s.Elemctrum.GetTransaction(txId)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
 
-	return &GetTransactionResult{
+	return &types.GetTransactionResult{
 		BlockHash:     result.Blockhash,
 		TxHash:        result.Hash,
 		Confirmations: int(result.Confirmations),
 	}, nil
 }
 
-func (s BitcoinApiService) GetUTXO(address string) (*GetUTXOResult, error) {
+func (s BtcService) GetUTXO(address string) (*types.GetUTXOResult, error) {
 	result, err := s.Elemctrum.GetListUnspent(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
 
-	utxos := make([]*UTXO, 0)
+	utxos := make([]*types.UTXO, 0)
 	for _, utxo := range result {
-		utxos = append(utxos, &UTXO{
+		utxos = append(utxos, &types.UTXO{
 			Height:   utxo.Height,
 			Position: utxo.Position,
 			Hash:     utxo.Hash,
@@ -59,64 +59,29 @@ func (s BitcoinApiService) GetUTXO(address string) (*GetUTXOResult, error) {
 		})
 	}
 
-	return &GetUTXOResult{
+	return &types.GetUTXOResult{
 		Address: address,
 		UTXOs:   utxos,
 	}, nil
 
 }
 
-func (s BitcoinApiService) GetHistory(address string) (*GetHistoryResult, error) {
+func (s BtcService) GetHistory(address string) (*types.GetHistoryResult, error) {
 	result, err := s.Elemctrum.GetHistory(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
 
-	histories := make([]*History, 0)
+	histories := make([]*types.History, 0)
 	for _, history := range result {
-		histories = append(histories, &History{
+		histories = append(histories, &types.History{
 			Height: history.Height,
 			TxHash: history.Hash,
 		})
 	}
 
-	return &GetHistoryResult{
+	return &types.GetHistoryResult{
 		Address:   address,
 		Histories: histories,
 	}, nil
-}
-
-type GetUTXOResult struct {
-	Address string  `json:"address"`
-	UTXOs   []*UTXO `json:"utxos"`
-}
-
-type UTXO struct {
-	Height   uint32 `json:"height"`
-	Position uint32 `json:"tx_pos"`
-	Hash     string `json:"tx_hash"`
-	Value    uint64 `json:"value"`
-}
-
-type GetTransactionResult struct {
-	BlockHash     string `json:"block_hash"`
-	TxHash        string `json:"tx_hash"`
-	Confirmations int    `json:"confirmations"`
-}
-
-type GetBalanceResult struct {
-	Address     string `json:"address"`
-	Confirmed   int    `json:"confirmd"`
-	Unconfirmed int    `json:"unconfirmd"`
-}
-
-type GetHistoryResult struct {
-	Address   string     `json:"address"`
-	Histories []*History `json:"histories"`
-}
-
-type History struct {
-	Height int32  `json:"height"`
-	TxHash string `json:"tx_hash"`
-	Fee    uint32 `json:"fee,omitempty"`
 }
