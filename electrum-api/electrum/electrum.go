@@ -143,6 +143,30 @@ func (e Electrum) GetTransaction(txHash string) (*types.ElectrumTransaction, err
 
 }
 
+func (e Electrum) GetServerVersion() (string, error) {
+	client, err := e.sslClient()
+	if err != nil {
+		return "", err
+	}
+	defer client.Shutdown()
+
+	ctx := context.TODO()
+
+	err = client.Ping(ctx)
+	if err != nil {
+		log.Printf("electrumx client Ping error: %s", err)
+	}
+
+	version, protocolVer, err := client.ServerVersion(ctx)
+	if err != nil {
+		log.Printf("electrumx client ServerVersion error: %s", err)
+		return "", err
+	}
+
+	log.Printf("version: %s, protocol version: %s", version, protocolVer)
+	return version, nil
+}
+
 func (e Electrum) sslClient() (*electrum.Client, error) {
 	address := fmt.Sprintf("%s:%s", e.Host, e.Port)
 	ctx := context.TODO()

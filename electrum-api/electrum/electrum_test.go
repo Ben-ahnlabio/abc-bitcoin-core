@@ -57,3 +57,9 @@ func TestGetTransaction(t *testing.T) {
 	t.Logf("Transaction: %v", result)
 
 }
+
+func TestGetServerVersion(t *testing.T) {
+	electrum := NewElectrum("13.125.227.218", "50002")
+	version, _ := electrum.GetServerVersion()
+	t.Logf("Server Version: %s", version)
+}
