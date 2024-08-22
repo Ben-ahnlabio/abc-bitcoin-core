@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetBalance(t *testing.T) {
-	electrum := NewElectrum("localhost", "50002")
+	electrum := NewElectrum("13.125.227.218", "50002")
 	address := "bc1qanfh6n9csne5swjer6wmd2djugcy5y6eqtws67"
 	result, _ := electrum.GetBalance(address)
 	expectedConfirmed := 2000.0
@@ -19,7 +19,7 @@ func TestGetBalance(t *testing.T) {
 }
 
 func TestListunspent(t *testing.T) {
-	electrum := NewElectrum("localhost", "50002")
+	electrum := NewElectrum("13.125.227.218", "50002")
 	address := "bc1qanfh6n9csne5swjer6wmd2djugcy5y6eqtws67"
 	result, _ := electrum.GetListUnspent(address)
 
@@ -34,7 +34,7 @@ func TestListunspent(t *testing.T) {
 }
 
 func TestGetHistory(t *testing.T) {
-	electrum := NewElectrum("localhost", "50002")
+	electrum := NewElectrum("13.125.227.218", "50002")
 	address := "bc1qanfh6n9csne5swjer6wmd2djugcy5y6eqtws67"
 	result, _ := electrum.GetHistory(address)
 
@@ -49,10 +49,17 @@ func TestGetHistory(t *testing.T) {
 }
 
 func TestGetTransaction(t *testing.T) {
-	electrum := NewElectrum("localhost", "50002")
-	hashId := "894af5cb799532ca63f46decabe418a6df70a4942e678e572c309c578d5eaab7"
+	electrum := NewElectrum("13.125.227.218", "50002")
+	//hashId := "894af5cb799532ca63f46decabe418a6df70a4942e678e572c309c578d5eaab7"
+	hashId := "894af5cb799532ca63f46decabe418a6df70a4942e678e572c309c578d5eaab3"
 
 	result, _ := electrum.GetTransaction(hashId)
 	t.Logf("Transaction: %v", result)
 
+}
+
+func TestGetServerVersion(t *testing.T) {
+	electrum := NewElectrum("13.125.227.218", "50002")
+	version, _ := electrum.GetServerVersion()
+	t.Logf("Server Version: %s", version)
 }

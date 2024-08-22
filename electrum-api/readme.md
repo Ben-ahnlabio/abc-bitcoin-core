@@ -30,31 +30,37 @@ GET /v1/balance?address=<bitcoin address>
 }
 ```
 
-### Get Transaction
+### Get UTXO
 
-비트코인 transaction 정보를 가져온다
+비트코인 주소 UTXO 를 가져온다
 
 ```http
 GET /v1/transaction?txid=<txid>
 ```
 
-| Query Parameter | Type     | Description                          |
-| :-------------- | :------- | :----------------------------------- |
-| `txid`          | `string` | **Required**. Bitcoin transaction id |
+| Query Parameter | Type     | Description                   |
+| :-------------- | :------- | :---------------------------- |
+| `address`       | `string` | **Required**. Bitcoin Address |
 
 **Response Example**
 
 ```json
 {
-  "block_hash": "0000000000000000000197cc7a6d13c63cd086ca46372cc94577ff62fa56d568",
-  "tx_hash": "72c9cde2e7de731ab3b517bc582d23a91b0d2714ed1fdd96e580e6446a236a0f",
-  "confirmations": 10
+  "address": "bc1qanfh6n9csne5swjer6wmd2djugcy5y6eqtws67",
+  "utxos": [
+    {
+      "height": 853533,
+      "tx_pos": 0,
+      "tx_hash": "9870aa7720c577d5e3f01de8d05bda1356b725847a7eae5c0d81618a8f8d9e28",
+      "value": 2000
+    }
+  ]
 }
 ```
 
-### Get UTXO
+### Get History
 
-비트코인 주소 UTXO 를 가져온다
+비트코인 주소 history 를 가져온다
 
 ```http
 GET /v1/utxo?address=<bitcoin address>
@@ -69,13 +75,41 @@ GET /v1/utxo?address=<bitcoin address>
 ```json
 {
   "address": "bc1qanfh6n9csne5swjer6wmd2djugcy5y6eqtws67",
-  "UTXOs": [
+  "histories": [
     {
-      "height": 856675,
-      "tx_pos": 1,
-      "tx_hash": "72c9cde2e7de731ab3b517bc582d23a91b0d2714ed1fdd96e580e6446a236a0f",
-      "value": 21094
+      "height": 852690,
+      "tx_hash": "60d14e38db4a6bd2a42c26c33479d1532d656ff314461168346839c86b60dde3"
+    },
+    {
+      "height": 853533,
+      "tx_hash": "894af5cb799532ca63f46decabe418a6df70a4942e678e572c309c578d5eaab7"
+    },
+    {
+      "height": 853533,
+      "tx_hash": "9870aa7720c577d5e3f01de8d05bda1356b725847a7eae5c0d81618a8f8d9e28"
     }
   ]
+}
+```
+
+### Get Transaction
+
+비트코인 transaction 정보를 가져온다
+
+```http
+GET /v1/transaction
+```
+
+| Query Parameter | Type     | Description                          |
+| :-------------- | :------- | :----------------------------------- |
+| `txid`          | `string` | **Required**. Bitcoin transaction id |
+
+**Response Example**
+
+```json
+{
+  "block_hash": "000000000000000000018824e004cc5e283f383bee364cd71322288c11ea2cb6",
+  "tx_hash": "84b28ac934d0ac882e3d40e691778cf915202b38c93d018726631984114d3859",
+  "confirmations": 4155
 }
 ```

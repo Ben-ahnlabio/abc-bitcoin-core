@@ -1,56 +1,57 @@
 package service
 
-import (
-	"github.com/ahnlabio/bitcoin-core/electrum-api/config"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/electrum"
-)
+import types "github.com/ahnlabio/bitcoin-core/electrum-api/types"
 
-func GetBalance(address string) (*GetBalanceResult, error) {
+type BtcService struct {
+	Elemctrum types.IElectrum
+}
+
+func NewBitcoinApiService(electrum types.IElectrum) *BtcService {
+	return &BtcService{
+		Elemctrum: electrum,
+	}
+}
+
+func (s BtcService) GetBalance(address string) (*types.GetBalanceResult, error) {
 	_, err := validateAddress(address)
 	if err != nil {
 		return nil, InvalidAddressError(err)
 	}
 
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetBalance(address)
+	result, err := s.Elemctrum.GetBalance(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
 
-	return &GetBalanceResult{
+	return &types.GetBalanceResult{
 		Address:     address,
 		Confirmed:   int(result.Confirmed),
 		Unconfirmed: int(result.Unconfirmed),
 	}, nil
 }
 
-func GetTransaction(txId string) (*GetTransactionResult, error) {
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetTransaction(txId)
+func (s BtcService) GetTransaction(txId string) (*types.GetTransactionResult, error) {
+	result, err := s.Elemctrum.GetTransaction(txId)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
 
-	return &GetTransactionResult{
+	return &types.GetTransactionResult{
 		BlockHash:     result.Blockhash,
 		TxHash:        result.Hash,
 		Confirmations: int(result.Confirmations),
 	}, nil
 }
 
-func GetUTXO(address string) (*GetUTXOResult, error) {
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetListUnspent(address)
+func (s BtcService) GetUTXO(address string) (*types.GetUTXOResult, error) {
+	result, err := s.Elemctrum.GetListUnspent(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
 
-	utxos := make([]*UTXO, 0)
+	utxos := make([]*types.UTXO, 0)
 	for _, utxo := range result {
-		utxos = append(utxos, &UTXO{
+		utxos = append(utxos, &types.UTXO{
 			Height:   utxo.Height,
 			Position: utxo.Position,
 			Hash:     utxo.Hash,
@@ -58,66 +59,29 @@ func GetUTXO(address string) (*GetUTXOResult, error) {
 		})
 	}
 
-	return &GetUTXOResult{
+	return &types.GetUTXOResult{
 		Address: address,
 		UTXOs:   utxos,
 	}, nil
 
 }
 
-func GetHistory(address string) (*GetHistoryResult, error) {
-	appConfig := config.GetConfig()
-	electrum := electrum.NewElectrum(appConfig.ElectrumHost, appConfig.ElectrumPort)
-	result, err := electrum.GetHistory(address)
+func (s BtcService) GetHistory(address string) (*types.GetHistoryResult, error) {
+	result, err := s.Elemctrum.GetHistory(address)
 	if err != nil {
 		return nil, ElectrumError(err)
 	}
 
-	histories := make([]*History, 0)
+	histories := make([]*types.History, 0)
 	for _, history := range result {
-		histories = append(histories, &History{
+		histories = append(histories, &types.History{
 			Height: history.Height,
 			TxHash: history.Hash,
 		})
 	}
 
-	return &GetHistoryResult{
+	return &types.GetHistoryResult{
 		Address:   address,
 		Histories: histories,
 	}, nil
-}
-
-type GetUTXOResult struct {
-	Address string  `json:"address"`
-	UTXOs   []*UTXO `json:"utxos"`
-}
-
-type UTXO struct {
-	Height   uint32 `json:"height"`
-	Position uint32 `json:"tx_pos"`
-	Hash     string `json:"tx_hash"`
-	Value    uint64 `json:"value"`
-}
-
-type GetTransactionResult struct {
-	BlockHash     string `json:"block_hash"`
-	TxHash        string `json:"tx_hash"`
-	Confirmations int    `json:"confirmations"`
-}
-
-type GetBalanceResult struct {
-	Address     string `json:"address"`
-	Confirmed   int    `json:"confirmd"`
-	Unconfirmed int    `json:"unconfirmd"`
-}
-
-type GetHistoryResult struct {
-	Address   string     `json:"address"`
-	Histories []*History `json:"histories"`
-}
-
-type History struct {
-	Height int32  `json:"height"`
-	TxHash string `json:"tx_hash"`
-	Fee    uint32 `json:"fee,omitempty"`
 }

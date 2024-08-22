@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/ahnlabio/bitcoin-core/electrum-api/config"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/handlers"
+	"github.com/ahnlabio/bitcoin-core/electrum-api/container"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -25,6 +25,8 @@ func main() {
 
 func getRouter() *gin.Engine {
 	r := gin.Default()
+
+	handlers := container.GetInstnace().GetHandler()
 
 	r.GET("/", rootHandler)
 	r.GET("/v1/balance", handlers.GetBalanceHandler)
