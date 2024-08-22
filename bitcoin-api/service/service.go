@@ -1,6 +1,6 @@
 package service
 
-import types "github.com/ahnlabio/bitcoin-core/electrum-api/types"
+import types "github.com/ahnlabio/bitcoin-core/bitcoin-api/types"
 
 type BtcService struct {
 	Elemctrum types.IElectrum

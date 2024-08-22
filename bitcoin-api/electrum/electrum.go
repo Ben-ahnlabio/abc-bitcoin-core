@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ahnlabio/bitcoin-core/electrum-api/types"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/types"
 	"github.com/checksum0/go-electrum/electrum"
 )
 

@@ -1,6 +1,6 @@
-# electrum-api
+# bitcoin api
 
-electrum api
+bitcoin api
 
 ## elemctrum api 서버
 

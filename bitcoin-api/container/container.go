@@ -3,10 +3,10 @@ package container
 import (
 	"log"
 
-	"github.com/ahnlabio/bitcoin-core/electrum-api/config"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/electrum"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/handlers"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/service"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/config"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/electrum"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/handlers"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/service"
 )
 
 var container *Container

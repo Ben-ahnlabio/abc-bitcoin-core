@@ -1,4 +1,4 @@
-module github.com/ahnlabio/bitcoin-core/electrum-api
+module github.com/ahnlabio/bitcoin-core/bitcoin-api
 
 go 1.22.6
 

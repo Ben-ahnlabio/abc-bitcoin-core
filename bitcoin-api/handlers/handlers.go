@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ahnlabio/bitcoin-core/electrum-api/service"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/types"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/service"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/types"
 	"github.com/gin-gonic/gin"
 )
 

@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ahnlabio/bitcoin-core/electrum-api/config"
-	"github.com/ahnlabio/bitcoin-core/electrum-api/container"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/config"
+	"github.com/ahnlabio/bitcoin-core/bitcoin-api/container"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
