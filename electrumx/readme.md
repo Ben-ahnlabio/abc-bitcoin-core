@@ -1,5 +1,9 @@
 # electrum
 
+docs
+
+https://electrumx-spesmilo.readthedocs.io/en/latest/
+
 ## electrumx 로컬 실행
 
 `make docker-run` 명령어로 electrumx core 실행
@@ -10,21 +14,20 @@
 
 동기화에 약 7일이 소요됨 😵
 
+동기화가 완료(bitcoin core node 와 높이가 같아짐)되기 전까지 외부 RPC 요청이 허용되지 않음.
+
+electrum_rpc 내부 명령어만 사용 가능(문서 참고)
+
 ```
 make docker-run
 ```
 
-
 ## 참고 링크
 
 ### github
+
 https://github.com/lukechilds/docker-electrumx
 
 ### docker hub
+
 https://hub.docker.com/r/lukechilds/electrumx
-
-### docs
-
-https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html#blockchain-transaction-get
-
-https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html#blockchain.scripthash.listunspent
