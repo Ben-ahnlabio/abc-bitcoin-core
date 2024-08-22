@@ -13,7 +13,7 @@ electrum api
 비트코인 주소의 잔액을 가져온다
 
 ```http
-GET /v1/balance
+GET /v1/balance?address=<bitcoin address>
 ```
 
 | Query Parameter | Type     | Description                   |
@@ -35,7 +35,7 @@ GET /v1/balance
 비트코인 주소 UTXO 를 가져온다
 
 ```http
-GET /v1/utxo
+GET /v1/transaction?txid=<txid>
 ```
 
 | Query Parameter | Type     | Description                   |
@@ -63,7 +63,7 @@ GET /v1/utxo
 비트코인 주소 history 를 가져온다
 
 ```http
-GET /v1/history
+GET /v1/utxo?address=<bitcoin address>
 ```
 
 | Query Parameter | Type     | Description                   |
